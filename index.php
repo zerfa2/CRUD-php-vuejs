@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>CRUD PHP VUEJS</title>
+	<title>CRUD</title>
 	<link rel="stylesheet" type="text/css" href="css/normalize.css">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
@@ -121,10 +121,10 @@
 		            <td>{{ student.email }}</td>
 		            <td>{{ student.web }}</td>
 		            <td>
-		            	<button class="btn-floating btn-large " style="margin-right: 20px;">
+		            	<button class="btn-floating btn-large " style="margin-right: 20px;" v-on:click="getStudent('edit',student)">
 		            		<i class="material-icons">edit</i>
 		            	</button>
-		            	<button class="btn-floating btn-large ">
+		            	<button class="btn-floating btn-large" @click="getStudent('delete',student)">
 		            		<i class="material-icons">delete</i>
 		            	</button>
 		            </td>
@@ -172,6 +172,84 @@
 	              </button>
 	            </div>
 
+	          </form>
+	        </div>
+	      </section>
+	    </transition>
+	    <transition name="fade">
+	      <section v-bind:class="['ModalWindow',displayEditModal]" v-if="showEditModal">
+	        <div class="ModalWindow-container">
+	          <header class="ModalWindow-heading">
+	            <div class="row valign-wrapper">
+	              <div class="col s10">
+	                <h4 class="left">Editar Estudiante</h4>
+	              </div>
+	              <div class="col s2">
+	                <button class="btn btn-floating right" @click="toggleModal('edit')">
+	                  <i class="material-icons">close</i>
+	                </button>
+	              </div>
+	            </div>
+	          </header>
+	          <form class="ModalWindow-content row" v-on:submit.prevent="updateStudent">
+	            <div class="input-field col s12">
+	              <i class="material-icons prefix">account_circle</i>
+	              <input name="idstudent" type="hidden" class="validate" required v-model="activeStudent.idstudent">
+	              <input placeholder="Nombres" name="name" type="text" class="validate" required v-model="activeStudent.name" @change="getAllStudents">
+	              <span class="helper-text" data-error="Escriba correctamente el campo" data-success="Muy bien!">Texto de ayuda</span>
+	            </div>
+	            <div class="input-field col s12">
+	              <i class="material-icons prefix">email</i>
+	              <input placeholder="Escriba su correo electrónico" name="email" type="email" class="validate" required v-model="activeStudent.email" @change="getAllStudents">
+	              <span class="helper-text" data-error="Escriba correctamente el campo" data-success="Email correcto!">Texto de ayuda</span>
+	            </div>
+	            <div class="input-field col s12">
+	              <i class="material-icons prefix">web</i>
+	              <input placeholder="web" name="web" type="text" class="validate" required v-model="activeStudent.web" @change="getAllStudents">
+	              <span class="helper-text" data-error="Escriba correctamente el campo" data-success="Muy bien!">Texto de ayuda</span>
+	            </div>
+	            <div class="input-field col s12">
+	              <button class="btn-large btn-floating right" type="submit">
+	                <i class="material-icons">save</i>
+	              </button>
+	            </div>
+
+
+	          </form>
+	        </div>
+	      </section>
+	    </transition>
+	    <transition name="fade">
+	      <section v-bind:class="['ModalWindow',displayDeleteModal]" v-if="showDeleteModal">
+	        <div class="ModalWindow-container">
+	          <header class="ModalWindow-heading">
+	            <div class="row valign-wrapper">
+	              <div class="col s10">
+	                <h4 class="left">Eliminar Estudiante</h4>
+	              </div>
+	              <div class="col s2">
+	                <button class="btn btn-floating right" @click="toggleModal('delete')">
+	                  <i class="material-icons">close</i>
+	                </button>
+	              </div>
+	            </div>
+	          </header>
+	          <form class="ModalWindow-content row" v-on:submit.prevent="deleteStudent">
+	            <div class="input-field col s12">
+	              <!-- <i class="material-icons prefix">account_circle</i> -->
+	              <input name="idstudent" type="hidden" class="validate" required v-model="activeStudent.idstudent">
+	              <p>¿Estás seguro de eliminar al estudiante: {{ activeStudent.name }} ?</p>
+	            </div>
+	            <div class="input-field col s12">
+	              <button class="btn-floating btn-large" type="submit">
+	              	<i class="material-icons ">check</i>
+	              </button>
+
+	              <button class="btn-floating btn-large" type="button" @click="toggleModal('delete')">
+	              	<i class="material-icons ">close</i>
+	              </button>
+	            </div>
+	           
 	          </form>
 	        </div>
 	      </section>
@@ -265,7 +343,6 @@
 					.then(res=>{
 						// this.setMessages(res)
 						// this.getAllStudents()
-						console.log("d");
 						this.students = res.data.students
 					})
 			},
@@ -278,12 +355,24 @@
 						this.setMessages(res)
 					})
 			},
-			getStudent(){
-
+			getStudent(action,student){
+				this.toggleModal(action);
+				this.activeStudent = student;
 			},
-			updateStudent(){
-
+			updateStudent(e){
+				axios.post("config.php?action=update",new FormData(e.target))
+					.then((res)=>{
+						this.toggleModal('edit')
+						this.setMessages(res)
+					})
 			},
+			deleteStudent(e){
+				axios.post("config.php?action=delete",new FormData(e.target))
+					.then((res)=>{
+						this.toggleModal('delete')
+						this.setMessages(res)
+					})
+			}
 
 		}
 	}) 

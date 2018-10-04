@@ -57,7 +57,7 @@ if($action == "delete"){
 	$query = $conexion->query("DELETE FROM  students WHERE idstudent = '$idstudent'");
 	if($query){
 
-		$res["message"] = "Estudiante eliminar con exito";
+		$res["message"] = "Estudiante eliminado con exito";
 	}else{
 		$res["error"] = true;
 		$res["message"] = "Error al eliminar al estudiante";
